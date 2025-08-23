@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useTasks } from "../context/TaskContext.js";
 
-interface TaskInputProps {
-  onAdd: (task: string) => void;
-}
+export default function TaskInput() {
+  const { addTask } = useTasks();
 
-export default function TaskInput({ onAdd }: TaskInputProps) {
   const [text, setText] = useState("");
 
   useEffect(() => {
@@ -14,20 +13,23 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
-      onAdd(text);
+      addTask(text);
       setText("");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="flex space-x-2">
       <input
+        className="border p-2 flex-grow"
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="New task..."
       />
-      <button type="submit">Add</button>
+      <button type="submit" className="px-4 bg-blue-500 text-white rounded">
+        Add
+      </button>
     </form>
   );
 }
