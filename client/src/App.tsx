@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import TaskInput from "./Components/TaskInput.js";
-import { useTasks } from "./context/TaskContext.js";
+import TaskInput from "./Components/TaskInput";
+import { useTasks } from "./context/useTasks";
 
 export default function App() {
   const { tasks } = useTasks();
