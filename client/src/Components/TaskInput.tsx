@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTasks } from "../context/useTasks";
 
 export default function TaskInput() {
   const { addTask } = useTasks();
-
   const [text, setText] = useState("");
 
-  useEffect(() => {
-    console.log("Task text:", text);
-  }, [text]);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (text.trim()) {
-      addTask(text);
-      setText("");
-    }
+    if (!text.trim()) return;
+    await addTask(text);
+    setText("");
   };
 
   return (
@@ -27,7 +21,7 @@ export default function TaskInput() {
         onChange={(e) => setText(e.target.value)}
         placeholder="New task..."
       />
-      <button type="submit" className="px-4 bg-blue-500 text-white rounded">
+      <button type="submit" className="px-14 bg-blue-500 text-white rounded">
         Add
       </button>
     </form>
