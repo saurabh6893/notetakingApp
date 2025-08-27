@@ -1,53 +1,69 @@
 import { Request, Response, Router } from "express";
-import { Task, tasks } from "../models/task";
-import { v4 as uuidv4 } from "uuid";
+import { TaskModel } from "../models/task";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-  res.json(tasks);
+router.get("/", async (_req, res) => {
+  try {
+    const tasks = await TaskModel.find().sort({ createdAt: -1 });
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
 });
 
-router.post("/", (req, res) => {
-  const { text } = req.body;
-
-  if (!text || typeof text !== "string") {
-    return res.status(400).json({ error: "Invlaid" });
+router.post("/", async (req: Request<{}, {}, { text: string }>, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) {
+      res.status(400).json({ error: "Task text is required" });
+    }
+    const task = new TaskModel({ text });
+    await task.save();
+    res.status(201).json(task);
+  } catch (error) {
+    res.status(500).json({ error: "failed to Create a Task" });
   }
-
-  const newTask: Task = { id: uuidv4(), text };
-
-  tasks.push(newTask);
-
-  res.status(201).json(newTask);
 });
 
-router.delete("/:id", (req: Request<{ id: string }>, res: Response) => {
-  const { id } = req.params;
-  const index = tasks.findIndex((t) => t.id === id);
-  if (index === -1) {
-    return res.status(404).json({ error: "Tasks not found" });
-  }
+router.delete("/:id", async (req: Request<{ id: string }>, res) => {
+  try {
+    const { id } = req.params;
+    const task = await TaskModel.findByIdAndDelete(id);
 
-  const deleted = tasks.splice(index, 1)[0];
-  res.json(deleted);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete task" });
+  }
 });
 
 router.put(
   "/:id",
-  (req: Request<{ id: string }, {}, { text: string }>, res: Response) => {
-    const { id } = req.params;
-    const { text } = req.body;
-    if (!text || typeof text !== "string") {
-      return res.status(400).json({ error: "Invalid task text" });
-    }
+  async (req: Request<{ id: string }, {}, { text: string }>, res) => {
+    try {
+      const { id } = req.params;
+      const { text } = req.body;
+      if (!text) {
+        return res.status(400).json({ error: "Invalid task text" });
+      }
 
-    const task = tasks.find((task) => task.id === id);
-    if (!task) {
-      return res.status(404).json({ error: "Task not found" });
+      const task = await TaskModel.findByIdAndUpdate(
+        id,
+        { text },
+        { new: true },
+      );
+
+      if (!task) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete task" });
     }
-    task.text = text;
-    return res.json(task);
   },
 );
 

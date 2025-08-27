@@ -5,7 +5,7 @@ import { API_BASE } from "../config";
 export interface TaskContextType {
   tasks: Task[];
   addTask: (text: string) => Promise<void>;
-  deleteTask: (task: string) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
   editTask: (id: string, text: string) => Promise<void>;
 }
 
