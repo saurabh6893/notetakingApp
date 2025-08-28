@@ -1,1 +1,18 @@
+/* client/src/index.css */
 @import "tailwindcss";
+
+/* Set Inter as the default sans font */
+html {
+  font-family: "Inter", sans-serif;
+}
+
+/* Loader styles */
+.loader {
+  border-top-color: #2563eb; /* primary color */
+  animation: spin 1s infinite linear;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
