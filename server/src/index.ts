@@ -9,7 +9,13 @@ import authRouter from "./routes/auth";
 import { connectDB } from "./db";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  }),
+);
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/tasks", tasksRouter);

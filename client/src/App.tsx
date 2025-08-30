@@ -3,6 +3,8 @@ import { useTasks } from "./context/useTasks";
 import Navbar from "./Pages/Navbar";
 import Home from "./Pages/Home";
 import Tasks from "./Pages/Tasks";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
 
 export default function App() {
   const { tasks } = useTasks();
@@ -13,6 +15,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

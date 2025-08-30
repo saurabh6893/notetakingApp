@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { FrontendTask, Task } from "../types";
 import { API_BASE } from "../config";
+import { AuthContext } from "./AuthContext";
 
 export interface TaskContextType {
   tasks: FrontendTask[];
@@ -19,13 +20,21 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<FrontendTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
+    if (!token) return;
     const fetchTasks = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/api/tasks`);
+        const res = await fetch(`${API_BASE}/api/tasks`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data: Task[] = await res.json();
         const mapped: FrontendTask[] = data.map((t) => ({
           id: t._id,
@@ -60,7 +69,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     withLoading(async () => {
       const res = await fetch(`${API_BASE}/api/tasks`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ text }),
       });
       const newTask: Task = await res.json();
@@ -77,7 +89,11 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
   const deleteTask = (id: string) =>
     withLoading(async () => {
-      await fetch(`${API_BASE}/api/tasks/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Delete failed");
       setTasks((prev) => prev.filter((t) => t.id !== id));
     });
 
@@ -85,9 +101,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     withLoading(async () => {
       const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ text }),
       });
+      if (!res.ok) throw new Error("Edit failed");
       const updated: Task = await res.json();
       setTasks((prev) =>
         prev.map((t) =>
@@ -111,7 +131,5 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     </TaskContext.Provider>
   );
 }
-
-
 
 export default TaskContext;

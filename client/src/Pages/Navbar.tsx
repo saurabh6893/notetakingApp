@@ -10,6 +10,12 @@ const Navbar: React.FC = () => {
         <Link to="/tasks" className="hover:underline">
           Tasks
         </Link>
+        <Link to="/login" className="hover:underline">
+          Login
+        </Link>
+        <Link to="/register" className="hover:underline">
+          register
+        </Link>
       </div>
     </nav>
   );
