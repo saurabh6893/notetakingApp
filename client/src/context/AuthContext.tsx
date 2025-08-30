@@ -4,9 +4,11 @@ import React, { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext<{
   token: string | null;
   setToken: (token: string) => void;
+  logout: () => void;
 }>({
   token: null,
   setToken: () => {},
+  logout: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -21,13 +23,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setTokenState(newToken);
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setTokenState(null);
+  };
+
   useEffect(() => {
     const stored = localStorage.getItem("token");
     if (stored) setTokenState(stored);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, setToken }}>
+    <AuthContext.Provider value={{ token, setToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
