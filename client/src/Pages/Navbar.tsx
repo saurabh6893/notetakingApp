@@ -11,9 +11,11 @@ const Navbar: React.FC = () => {
       <Link to="/" className="hover:underline">
         Home
       </Link>
-      <Link to="/tasks" className="hover:underline">
-        Tasks
-      </Link>
+      {token && (
+        <Link to="/tasks" className="hover:underline">
+          Tasks
+        </Link>
+      )}
       {token ? (
         <button
           className="ml-auto bg-white text-blue-600 px-4 py-1 rounded-lg shadow hover:bg-blue-100 transition"
