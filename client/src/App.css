@@ -16,3 +16,7 @@ html {
     transform: rotate(360deg);
   }
 }
+
+body {
+  @apply bg-gradient-to-br from-blue-50 to-white min-h-screen;
+}

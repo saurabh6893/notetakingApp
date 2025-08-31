@@ -20,10 +20,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<FrontendTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setTasks([]);
+      return;
+    }
     const fetchTasks = async () => {
       setLoading(true);
       setError(null);
@@ -51,7 +54,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     };
 
     fetchTasks();
-  }, []);
+  }, [token]);
 
   const withLoading = async (fn: () => Promise<void>) => {
     setLoading(true);

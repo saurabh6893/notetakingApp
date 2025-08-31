@@ -31,33 +31,34 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "1rem" }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "0.5rem" }}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "0.5rem" }}
-            required
-          />
-        </div>
-        <button type="submit" style={{ padding: "0.5rem 1rem" }}>
+    <div className="max-w-md mx-auto p-8 bg-white rounded-3xl shadow-lg mt-12">
+      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
+        Login
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-3 rounded-xl bg-blue-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-3 rounded-xl bg-blue-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition"
+        >
           Login
         </button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="text-red-600 text-center">{error}</p>}
       </form>
     </div>
   );
