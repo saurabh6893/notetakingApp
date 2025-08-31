@@ -7,7 +7,8 @@ import { useTasks } from "../context/useTasks";
 import AnimatedButton from "../Components/AnimatedButton";
 
 const Tasks: React.FC = () => {
-  const { tasks, loading, error, deleteTask, editTask } = useTasks();
+  const { tasks, loading, error, deleteTask, editTask, toggleComplete } =
+    useTasks();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const listRef = useRef<HTMLUListElement>(null);
@@ -20,10 +21,10 @@ const Tasks: React.FC = () => {
           items,
           { y: -20, opacity: 0 },
           {
-            duration: 0.75,
+            duration: 0.25,
             y: 0,
             opacity: 1,
-            stagger: 0.5,
+            stagger: 0.25,
             ease: "power2.out",
           },
         );
@@ -117,7 +118,17 @@ const Tasks: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span className="flex-grow">{task.text}</span>
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleComplete(task.id)}
+                    className="mr-3"
+                  />
+                  <span
+                    className={`flex-grow ${task.completed ? "line-through opacity-60" : ""}`}
+                  >
+                    {task.text}
+                  </span>
                   <AnimatedButton
                     onClick={() => startEdit(task.id, task.text)}
                     className="px-2 text-[#2563EB] hover:text-[#1E40AF] transition"

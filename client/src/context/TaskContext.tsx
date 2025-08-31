@@ -12,6 +12,7 @@ export interface TaskContextType {
   addTask: (text: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   editTask: (id: string, text: string) => Promise<void>;
+  toggleComplete: (id: string) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -42,6 +43,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         const mapped: FrontendTask[] = data.map((t) => ({
           id: t._id,
           text: t.text,
+          completed: t.completed || false,
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
         }));
@@ -68,6 +70,29 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const toggleComplete = (id: string) =>
+    withLoading(async () => {
+      const res = await fetch(`${API_BASE}/api/tasks/${id}/complete`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Toggle completion failed");
+      const updatedTask: Task = await res.json();
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? {
+                id: updatedTask._id,
+                text: updatedTask.text,
+                completed: updatedTask.completed,
+                createdAt: updatedTask.createdAt,
+                updatedAt: updatedTask.updatedAt,
+              }
+            : t,
+        ),
+      );
+    });
+
   const addTask = (text: string) =>
     withLoading(async () => {
       const res = await fetch(`${API_BASE}/api/tasks`, {
@@ -84,6 +109,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         {
           id: newTask._id,
           text: newTask.text,
+          completed: newTask.completed || false,
           createdAt: newTask.createdAt,
           updatedAt: newTask.updatedAt,
         },
@@ -118,6 +144,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             ? {
                 id: updated._id,
                 text: updated.text,
+                completed: updated.completed || false,
                 createdAt: updated.createdAt,
                 updatedAt: updated.updatedAt,
               }
@@ -128,7 +155,15 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <TaskContext.Provider
-      value={{ tasks, loading, error, addTask, deleteTask, editTask }}
+      value={{
+        tasks,
+        loading,
+        error,
+        addTask,
+        deleteTask,
+        editTask,
+        toggleComplete,
+      }}
     >
       {children}
     </TaskContext.Provider>

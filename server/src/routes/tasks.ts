@@ -71,4 +71,21 @@ router.put("/:id", async (req: AuthRequest, res) => {
   }
 });
 
+router.patch("/:id/complete", async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const task = await TaskModel.findOne({ _id: id, userId: req.userId });
+
+    if (!task) {
+      return res.status(404).json({ error: "Task not Found" });
+    }
+
+    task.completed = !task.completed;
+    await task.save();
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to toggle task completion" });
+  }
+});
+
 export default router;

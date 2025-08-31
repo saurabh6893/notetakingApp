@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface TaskDoc extends Document {
   text: string;
+  completed: Boolean;
   userId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -14,6 +15,7 @@ const TaskSchema: Schema<TaskDoc> = new Schema(
       required: true,
       trim: true,
     },
+    completed: { type: Boolean, default: false },
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
