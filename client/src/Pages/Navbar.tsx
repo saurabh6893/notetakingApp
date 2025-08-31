@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import AnimatedButton from "../Components/AnimatedButton";
 
 const Navbar: React.FC = () => {
   const { token, logout } = useContext(AuthContext);
@@ -17,7 +18,7 @@ const Navbar: React.FC = () => {
         </Link>
       )}
       {token ? (
-        <button
+        <AnimatedButton
           className="ml-auto bg-white text-blue-600 px-4 py-1 rounded-lg shadow hover:bg-blue-100 transition"
           onClick={() => {
             logout();
@@ -25,7 +26,7 @@ const Navbar: React.FC = () => {
           }}
         >
           Logout
-        </button>
+        </AnimatedButton>
       ) : (
         <div className="ml-auto flex gap-4">
           <Link to="/login" className="hover:underline">

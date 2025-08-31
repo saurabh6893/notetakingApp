@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTasks } from "../context/useTasks";
+import AnimatedButton from "./AnimatedButton";
 
 export default function TaskInput() {
   const { addTask } = useTasks();
@@ -21,9 +22,12 @@ export default function TaskInput() {
         onChange={(e) => setText(e.target.value)}
         placeholder="New task..."
       />
-      <button type="submit" className="px-14 bg-blue-500 text-white rounded">
+      <AnimatedButton
+        type="submit"
+        className="px-14 bg-blue-500 text-white rounded"
+      >
         Add
-      </button>
+      </AnimatedButton>
     </form>
   );
 }

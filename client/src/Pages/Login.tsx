@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { API_BASE } from "../config";
+import AnimatedButton from "../Components/AnimatedButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -52,12 +53,12 @@ export default function Login() {
           required
           className="w-full p-3 rounded-xl bg-blue-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
-        <button
+        <AnimatedButton
           type="submit"
           className="w-full bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 transition"
         >
           Login
-        </button>
+        </AnimatedButton>
         {error && <p className="text-red-600 text-center">{error}</p>}
       </form>
     </div>
