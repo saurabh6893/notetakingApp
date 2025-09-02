@@ -1,6 +1,7 @@
 // client/src/Components/AnimatedButton.tsx
-import React, { useRef } from "react";
+
 import gsap from "gsap";
+import * as React from "react";
 
 interface AnimatedButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
