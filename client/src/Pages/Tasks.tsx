@@ -5,6 +5,7 @@ import TaskInput from "../Components/TaskInput";
 import gsap from "gsap";
 import { useTasks } from "../context/useTasks";
 import AnimatedButton from "../Components/AnimatedButton";
+import { GlassCard } from "../Components/GlassCard";
 
 const Tasks: React.FC = () => {
   const { tasks, loading, error, deleteTask, editTask, toggleComplete } =
@@ -19,10 +20,11 @@ const Tasks: React.FC = () => {
       if (items.length > 0) {
         gsap.fromTo(
           items,
-          { y: -20, opacity: 0 },
+          { y: -20, x: -200, opacity: 0 },
           {
-            duration: 0.25,
+            duration: 0.2,
             y: 0,
+            x: 0,
             opacity: 1,
             stagger: 0.25,
             ease: "power2.out",
@@ -69,12 +71,20 @@ const Tasks: React.FC = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div
+      className="p-6 min-h-screen"
+      style={{ backgroundColor: "var(--color-bg)" }}
+    >
       <div className="max-w-xl mx-auto mt-8 rounded-2xl bg-white shadow-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-blue-700">My Tasks</h1>
+        <h1
+          className="text-3xl font-bold mb-6"
+          style={{ color: "var(--text-primary)" }}
+        >
+          My Tasks
+        </h1>
 
         {error && (
-          <div className="bg-[#FEE2E2] text-[#B91C1C] p-2 rounded mb-4">
+          <div className="bg-red-100 text-red-700 p-2 rounded mb-4">
             {error}
           </div>
         )}
@@ -87,62 +97,72 @@ const Tasks: React.FC = () => {
 
         <TaskInput />
 
-        <ul ref={listRef} className="mt-4 space-y-3">
+        <ul ref={listRef} className="mt-4 space-y-5">
           {tasks.map((task) => (
             <li
               key={task.id}
-              className="flex items-center justify-between p-4 bg-blue-100 rounded-xl shadow transition-all"
-              style={{ cursor: "pointer" }}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              {editingId === task.id ? (
-                <>
-                  <input
-                    className="border p-1 flex-grow mr-2 rounded"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                  />
-                  <AnimatedButton
-                    onClick={saveEdit}
-                    className="px-3 py-1 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition"
-                  >
-                    Save
-                  </AnimatedButton>
-                  <AnimatedButton
-                    onClick={cancelEdit}
-                    className="px-3 py-1 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
-                  >
-                    Cancel
-                  </AnimatedButton>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleComplete(task.id)}
-                    className="mr-3"
-                  />
-                  <span
-                    className={`flex-grow ${task.completed ? "line-through opacity-60" : ""}`}
-                  >
-                    {task.text}
-                  </span>
-                  <AnimatedButton
-                    onClick={() => startEdit(task.id, task.text)}
-                    className="px-2 text-[#2563EB] hover:text-[#1E40AF] transition"
-                  >
-                    Edit
-                  </AnimatedButton>
-                  <AnimatedButton
-                    onClick={() => deleteTask(task.id)}
-                    className="px-2 text-[#DC2626] hover:text-[#B91C1C] transition"
-                  >
-                    Delete
-                  </AnimatedButton>
-                </>
-              )}
+              <GlassCard
+                accentColor={
+                  task.completed
+                    ? "var(--color-tertiary)"
+                    : "var(--color-primary)"
+                }
+              >
+                {editingId === task.id ? (
+                  <div className="flex items-center w-full gap-4">
+                    <input
+                      className="border p-2 flex-grow rounded"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <AnimatedButton
+                      onClick={saveEdit}
+                      className="btn btn-primary"
+                    >
+                      Save
+                    </AnimatedButton>
+                    <AnimatedButton
+                      onClick={cancelEdit}
+                      className="btn btn-secondary"
+                    >
+                      Cancel
+                    </AnimatedButton>
+                  </div>
+                ) : (
+                  <div className="flex items-center w-full gap-4">
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => toggleComplete(task.id)}
+                      className="flex-shrink-0"
+                    />
+                    <span
+                      className={`flex-grow ${
+                        task.completed ? "line-through opacity-60" : ""
+                      }`}
+                    >
+                      {task.text}
+                    </span>
+                    <div className="flex-shrink-0 flex gap-2">
+                      <AnimatedButton
+                        onClick={() => startEdit(task.id, task.text)}
+                        className="btn btn-primary"
+                      >
+                        Edit
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={() => deleteTask(task.id)}
+                        className="btn btn-secondary"
+                      >
+                        Delete
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
             </li>
           ))}
         </ul>

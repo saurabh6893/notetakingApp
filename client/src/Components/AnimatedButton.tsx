@@ -18,7 +18,7 @@ export default function AnimatedButton({
   const onEnter = () => {
     if (btnRef.current) {
       gsap.to(btnRef.current, {
-        scale: 1.05,
+        scale: 1.1,
         duration: 0.2,
         ease: "power1.out",
       });
@@ -37,7 +37,7 @@ export default function AnimatedButton({
       {...props}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
-      className={`${className} focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
+      className={`${className} focus:outline-none focus:ring-2 focus:ring-blue-500 transition `}
     >
       {children}
     </button>

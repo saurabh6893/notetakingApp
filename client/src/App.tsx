@@ -7,6 +7,7 @@ import Register from "./Pages/Register";
 import PageTransition from "./Components/PageTransition";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
+import "./styles/theme.css";
 
 export default function App() {
   const { token } = useContext(AuthContext);
