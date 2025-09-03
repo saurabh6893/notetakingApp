@@ -55,9 +55,9 @@ const Tasks: React.FC = () => {
                   className={styles.stackCard}
                   style={{
                     transform: `
-        translateZ(${adjustedIndex * -600}px)    /* 5× deeper stacking */
-        rotateY(${adjustedIndex * -15}deg) 
-        translateX(${adjustedIndex * 150}px)     /* 5× wider offset */
+        translateZ(${adjustedIndex * -400}px)    
+        rotateY(${adjustedIndex * 0}deg) 
+        translateX(${adjustedIndex * 200}px)     
    `,
                     zIndex: tasks.length - adjustedIndex,
                     transitionDuration: "0.8s",
@@ -79,15 +79,6 @@ const Tasks: React.FC = () => {
                         </div>
                         <div className="flex gap-2">
                           <AnimatedButton
-                            onClick={() => {
-                              setEditingId(task.id);
-                              setEditText(task.text);
-                            }}
-                            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                          >
-                            Edit
-                          </AnimatedButton>
-                          <AnimatedButton
                             onClick={() => deleteTask(task.id)}
                             className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors"
                           >
@@ -105,19 +96,55 @@ const Tasks: React.FC = () => {
         <div className={styles.content}>
           {selectedId ? (
             <div className={styles.detailCard}>
-              <GlassCard accentColor="var(--color-primary, #4F9CF9)">
-                <h2 className="text-3xl font-bold mb-6">
-                  {tasks.find((t) => t.id === selectedId)?.text}
-                </h2>
-                <div className="space-y-4">
-                  <p className="text-lg">
-                    Detailed description for the selected task goes here.
-                  </p>
-                  <p>
-                    This is where you can add comprehensive notes, deadlines,
-                    and other details about your task.
-                  </p>
-                </div>
+              <GlassCard accentColor="var(--color-secondary)">
+                {editingId === selectedId ? (
+                  <div className="flex flex-col gap-4">
+                    <input
+                      className="border p-2 rounded"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <AnimatedButton
+                        onClick={saveEdit}
+                        className="btn btn-primary"
+                      >
+                        Save
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditText("");
+                        }}
+                        className="btn btn-secondary"
+                      >
+                        Cancel
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-3xl font-bold">
+                        {tasks.find((t) => t.id === selectedId)?.text}
+                      </h2>
+                      <AnimatedButton
+                        onClick={() => {
+                          setEditingId(selectedId);
+                          setEditText(
+                            tasks.find((t) => t.id === selectedId)!.text,
+                          );
+                        }}
+                        className="btn btn-primary"
+                      >
+                        Edit
+                      </AnimatedButton>
+                    </div>
+                    <p className="mt-4 text-lg">
+                      Detailed description for the selected task goes here.
+                    </p>
+                  </>
+                )}
               </GlassCard>
             </div>
           ) : (
