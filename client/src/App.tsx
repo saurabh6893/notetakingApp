@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useTasks } from "./context/useTasks";
 import Navbar from "./Pages/Navbar";
 import Home from "./Pages/Home";
 import Tasks from "./Pages/Tasks";
@@ -10,8 +9,7 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 export default function App() {
-  const { tasks } = useTasks();
-  const { token, logout } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   return (
     <BrowserRouter>
       <Navbar />

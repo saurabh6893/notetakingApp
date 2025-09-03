@@ -21,7 +21,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<FrontendTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { token, logout } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
     if (!token) {

@@ -1,5 +1,5 @@
 // client/src/Components/AnimatedButton.tsx
-import React, { useRef } from "react";
+import React from "react";
 import gsap from "gsap";
 
 interface AnimatedButtonProps

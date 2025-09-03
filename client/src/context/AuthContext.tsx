@@ -1,5 +1,4 @@
-// client/src/context/AuthContext.tsx
-import React, { createContext, useState, useEffect } from "react";
+import { createContext } from "react";
 
 export const AuthContext = createContext<{
   token: string | null;
@@ -10,32 +9,3 @@ export const AuthContext = createContext<{
   setToken: () => {},
   logout: () => {},
 });
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [token, setTokenState] = useState<string | null>(
-    localStorage.getItem("token"),
-  );
-
-  const setToken = (newToken: string) => {
-    localStorage.setItem("token", newToken);
-    setTokenState(newToken);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setTokenState(null);
-  };
-
-  useEffect(() => {
-    const stored = localStorage.getItem("token");
-    if (stored) setTokenState(stored);
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ token, setToken, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
