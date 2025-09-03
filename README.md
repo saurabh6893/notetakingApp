@@ -91,6 +91,7 @@ notetakingApp/
 │   │   │   └── Navbar.tsx
 │   │   ├── context/          # React Context for state management
 │   │   │   ├── AuthContext.tsx
+│   │   │   ├── AuthProvider.tsx
 │   │   │   ├── TaskContext.tsx
 │   │   │   └── useTasks.tsx
 │   │   ├── types.ts          # TypeScript interfaces
