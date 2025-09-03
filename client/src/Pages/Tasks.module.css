@@ -1,0 +1,114 @@
+/* Tasks.module.css */
+.container {
+  display: flex;
+  height: calc(100vh - 56px);
+  background: var(--color-bg, #f5f5f5);
+}
+
+.inputBar {
+  position: sticky;
+  top: 56px;
+  background: var(--color-bg, #f5f5f5);
+  padding: 1rem;
+  z-index: 10;
+  width: 100%;
+}
+
+.sidebar {
+  width: 50%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.cardStack {
+  position: relative;
+  width: 420px; /* 1.5× wider */
+  height: 600px; /* 1.5× taller */
+  transform-style: preserve-3d;
+}
+
+.stackCard {
+  position: absolute;
+  width: 420px;
+  height: 600px;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+
+  /* Different background colors for each card position */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.stackCard.selected {
+  transform: translateZ(0px) rotateY(0deg) translateX(0px) scale(1.1) !important;
+  z-index: 999 !important;
+  transition-duration: 0.8s !important;
+}
+
+/* Unique colors for each card position to differentiate */
+.stackCard:nth-child(1) {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 156, 249, 0.9),
+    rgba(79, 156, 249, 0.7)
+  );
+  color: white;
+}
+.stackCard:nth-child(2) {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 169, 79, 0.9),
+    rgba(249, 169, 79, 0.7)
+  );
+  color: white;
+}
+.stackCard:nth-child(3) {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 249, 169, 0.9),
+    rgba(79, 249, 169, 0.7)
+  );
+  color: white;
+}
+.stackCard:nth-child(4) {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 79, 138, 0.9),
+    rgba(249, 79, 138, 0.7)
+  );
+  color: white;
+}
+.stackCard:nth-child(5) {
+  background: linear-gradient(
+    135deg,
+    rgba(138, 79, 249, 0.9),
+    rgba(138, 79, 249, 0.7)
+  );
+  color: white;
+}
+
+.content {
+  width: 50%;
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.detailCard {
+  width: 100%;
+  max-width: 500px;
+  min-height: 400px;
+}

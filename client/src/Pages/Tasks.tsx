@@ -1,43 +1,34 @@
-// client/src/Pages/Tasks.tsx
-
 import React, { useState, useRef, useEffect } from "react";
 import TaskInput from "../Components/TaskInput";
-import gsap from "gsap";
 import { useTasks } from "../context/useTasks";
 import AnimatedButton from "../Components/AnimatedButton";
 import { GlassCard } from "../Components/GlassCard";
+import styles from "./Tasks.module.css";
 
 const Tasks: React.FC = () => {
-  const { tasks, loading, error, deleteTask, editTask, toggleComplete } =
-    useTasks();
+  const { tasks, deleteTask, editTask, toggleComplete } = useTasks();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
-  const listRef = useRef<HTMLUListElement>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const stackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!loading && listRef.current && tasks.length > 0) {
-      const items = Array.from(listRef.current.children) as HTMLElement[];
-      if (items.length > 0) {
-        gsap.fromTo(
-          items,
-          { y: -20, x: -200, opacity: 0 },
-          {
-            duration: 0.2,
-            y: 0,
-            x: 0,
-            opacity: 1,
-            stagger: 0.25,
-            ease: "power2.out",
-          },
-        );
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (e.deltaY > 0 && currentIndex < tasks.length - 1) {
+        setCurrentIndex((prev) => prev + 1);
+      } else if (e.deltaY < 0 && currentIndex > 0) {
+        setCurrentIndex((prev) => prev - 1);
       }
-    }
-  }, [loading, tasks]);
+    };
 
-  const startEdit = (id: string, current: string) => {
-    setEditingId(id);
-    setEditText(current);
-  };
+    const stackElement = stackRef.current;
+    if (stackElement) {
+      stackElement.addEventListener("wheel", handleWheel, { passive: false });
+      return () => stackElement.removeEventListener("wheel", handleWheel);
+    }
+  }, [currentIndex, tasks.length]);
 
   const saveEdit = async () => {
     if (editingId && editText.trim()) {
@@ -47,127 +38,96 @@ const Tasks: React.FC = () => {
     }
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditText("");
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLLIElement>) => {
-    gsap.to(e.currentTarget, {
-      y: -5,
-      boxShadow: "0 10px 15px rgba(0,0,0,0.15)",
-      duration: 0.3,
-      ease: "power1.out",
-    });
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLLIElement>) => {
-    gsap.to(e.currentTarget, {
-      y: 0,
-      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-      duration: 0.3,
-      ease: "power1.out",
-    });
-  };
-
   return (
-    <div
-      className="p-6 min-h-screen"
-      style={{ backgroundColor: "var(--color-bg)" }}
-    >
-      <div className="max-w-xl mx-auto mt-8 rounded-2xl bg-white shadow-lg p-8">
-        <h1
-          className="text-3xl font-bold mb-6"
-          style={{ color: "var(--text-primary)" }}
-        >
-          My Tasks
-        </h1>
-
-        {error && (
-          <div className="bg-red-100 text-red-700 p-2 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {loading && tasks.length === 0 && (
-          <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
-            <div className="loader rounded-full border-8 border-t-8 border-gray-200 h-16 w-16" />
-          </div>
-        )}
-
+    <>
+      <div className={styles.inputBar}>
         <TaskInput />
-
-        <ul ref={listRef} className="mt-4 space-y-5">
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <GlassCard
-                accentColor={
-                  task.completed
-                    ? "var(--color-tertiary)"
-                    : "var(--color-primary)"
-                }
-              >
-                {editingId === task.id ? (
-                  <div className="flex items-center w-full gap-4">
-                    <input
-                      className="border p-2 flex-grow rounded"
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                    />
-                    <AnimatedButton
-                      onClick={saveEdit}
-                      className="btn btn-primary"
-                    >
-                      Save
-                    </AnimatedButton>
-                    <AnimatedButton
-                      onClick={cancelEdit}
-                      className="btn btn-secondary"
-                    >
-                      Cancel
-                    </AnimatedButton>
-                  </div>
-                ) : (
-                  <div className="flex items-center w-full gap-4">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => toggleComplete(task.id)}
-                      className="flex-shrink-0"
-                    />
-                    <span
-                      className={`flex-grow ${
-                        task.completed ? "line-through opacity-60" : ""
-                      }`}
-                    >
-                      {task.text}
-                    </span>
-                    <div className="flex-shrink-0 flex gap-2">
-                      <AnimatedButton
-                        onClick={() => startEdit(task.id, task.text)}
-                        className="btn btn-primary"
-                      >
-                        Edit
-                      </AnimatedButton>
-                      <AnimatedButton
-                        onClick={() => deleteTask(task.id)}
-                        className="btn btn-secondary"
-                      >
-                        Delete
-                      </AnimatedButton>
-                    </div>
-                  </div>
-                )}
-              </GlassCard>
-            </li>
-          ))}
-        </ul>
       </div>
-    </div>
+      <div className={styles.container}>
+        <div className={styles.sidebar}>
+          <div ref={stackRef} className={styles.cardStack}>
+            {tasks.map((task, i) => {
+              const adjustedIndex =
+                (i - currentIndex + tasks.length) % tasks.length;
+              return (
+                <div
+                  key={task.id}
+                  className={styles.stackCard}
+                  style={{
+                    transform: `
+        translateZ(${adjustedIndex * -600}px)    /* 5× deeper stacking */
+        rotateY(${adjustedIndex * -15}deg) 
+        translateX(${adjustedIndex * 150}px)     /* 5× wider offset */
+   `,
+                    zIndex: tasks.length - adjustedIndex,
+                    transitionDuration: "0.8s",
+                  }}
+                  onClick={() => setSelectedId(task.id)}
+                >
+                  <div className="w-full h-full flex flex-col">
+                    <h3 className="text-2xl font-bold mb-4">{task.text}</h3>
+                    {adjustedIndex === 0 && (
+                      <div className="flex flex-col gap-3 mt-auto">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={task.completed}
+                            onChange={() => toggleComplete(task.id)}
+                            className="scale-125"
+                          />
+                          <span className="text-sm">Mark as completed</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <AnimatedButton
+                            onClick={() => {
+                              setEditingId(task.id);
+                              setEditText(task.text);
+                            }}
+                            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                          >
+                            Edit
+                          </AnimatedButton>
+                          <AnimatedButton
+                            onClick={() => deleteTask(task.id)}
+                            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors"
+                          >
+                            Delete
+                          </AnimatedButton>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className={styles.content}>
+          {selectedId ? (
+            <div className={styles.detailCard}>
+              <GlassCard accentColor="var(--color-primary, #4F9CF9)">
+                <h2 className="text-3xl font-bold mb-6">
+                  {tasks.find((t) => t.id === selectedId)?.text}
+                </h2>
+                <div className="space-y-4">
+                  <p className="text-lg">
+                    Detailed description for the selected task goes here.
+                  </p>
+                  <p>
+                    This is where you can add comprehensive notes, deadlines,
+                    and other details about your task.
+                  </p>
+                </div>
+              </GlassCard>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">
+              Select a task to view details
+            </p>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
