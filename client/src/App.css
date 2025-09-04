@@ -18,5 +18,5 @@ html {
 }
 
 body {
-  @apply bg-gradient-to-br from-blue-50 to-white min-h-screen;
+  @apply bg-gradient-to-br from-blue-50 to-slate-50 min-h-screen;
 }
