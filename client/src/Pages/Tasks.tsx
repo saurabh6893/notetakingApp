@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import styles from "./Tasks.module.css";
+import { useAdvancedGSAP } from "../hooks/useAdvancedGSAP";
 
 const Tasks: React.FC = () => {
   const { tasks, deleteTask, editTask, toggleComplete } = useTasks();
@@ -27,39 +28,40 @@ const Tasks: React.FC = () => {
   const stackRef = useRef<HTMLDivElement>(null);
   const topCardRef = useRef<HTMLDivElement>(null);
   const bottomCardRef = useRef<HTMLDivElement>(null);
-  const gsapTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const gsapTimelineRef = useRef<any>(null);
   const wheelLock = useRef(false);
-
+  const { animateTasksStagger } = useAdvancedGSAP();
   // Wheel navigation with lock (your existing smooth scrolling)
+
+  // NEW: Stagger task card entrance on tasks change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      animateTasksStagger(".task-card");
+    }
+  }, [tasks, animateTasksStagger]);
+
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (wheelLock.current || tasks.length === 0) return;
       wheelLock.current = true;
-
       if (e.deltaY > 0) {
         setCurrentIndex((prev) => (prev + 1) % tasks.length);
-      } else if (e.deltaY < 0) {
+      } else {
         setCurrentIndex((prev) => (prev - 1 + tasks.length) % tasks.length);
       }
-
-      setTimeout(() => {
-        wheelLock.current = false;
-      }, 500);
+      setTimeout(() => (wheelLock.current = false), 500);
     };
-
-    const stackElement = stackRef.current;
-    if (stackElement) {
-      stackElement.addEventListener("wheel", handleWheel, { passive: false });
-      return () => stackElement.removeEventListener("wheel", handleWheel);
+    const stackEl = stackRef.current;
+    if (stackEl) {
+      stackEl.addEventListener("wheel", handleWheel, { passive: false });
+      return () => stackEl.removeEventListener("wheel", handleWheel);
     }
   }, [tasks.length]);
 
-  // Keyboard navigation (from Lovable)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (tasks.length === 0) return;
-
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         setCurrentIndex((prev) => (prev + 1) % tasks.length);
@@ -68,9 +70,7 @@ const Tasks: React.FC = () => {
         setCurrentIndex((prev) => (prev - 1 + tasks.length) % tasks.length);
       } else if (e.key === "Enter") {
         e.preventDefault();
-        if (tasks[currentIndex]) {
-          setSelectedId(tasks[currentIndex].id);
-        }
+        setSelectedId(tasks[currentIndex]?.id ?? null);
       } else if (e.key === "Escape") {
         e.preventDefault();
         setSelectedId(null);
@@ -80,7 +80,6 @@ const Tasks: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, tasks]);
 
-  // GSAP animations for detail cards (with null checks to fix errors)
   useEffect(() => {
     if (gsapTimelineRef.current) gsapTimelineRef.current.kill();
 
@@ -88,10 +87,12 @@ const Tasks: React.FC = () => {
     const bottomCard = bottomCardRef.current;
 
     if (selectedId) {
-      if (!topCard || !bottomCard) return; // Fix null reference errors
+      if (!topCard || !bottomCard) return;
 
+      // Set initial display and create new timeline
       gsap.set([topCard, bottomCard], { display: "block" });
-      gsapTimelineRef.current = gsap.timeline();
+      gsapTimelineRef.current = gsap.timeline(); // Create GSAP timeline, not the function
+
       gsapTimelineRef.current
         .fromTo(
           topCard,
@@ -105,14 +106,14 @@ const Tasks: React.FC = () => {
           "-=0.5",
         );
     } else {
-      if (!topCard || !bottomCard) return; // Fix null reference errors
+      if (!topCard || !bottomCard) return;
 
-      gsapTimelineRef.current = gsap.timeline();
+      gsapTimelineRef.current = gsap.timeline(); // Create GSAP timeline, not the function
       gsapTimelineRef.current
         .to(topCard, {
           y: "-120%",
           opacity: 0,
-          duration: 5,
+          duration: 0.6,
           ease: "power2.in",
         })
         .to(
@@ -167,7 +168,7 @@ const Tasks: React.FC = () => {
       <main className="relative z-10 container mx-auto px-6 py-8">
         {tasks.length === 0 ? (
           <div className="text-center py-20">
-            <GlassCard className="max-w-md mx-auto">
+            <GlassCard className="task-card max-w-md mx-auto">
               <div className="text-center">
                 <Layers3 className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
                 <h2 className="text-2xl font-semibold mb-2">No tasks yet</h2>
@@ -195,7 +196,7 @@ const Tasks: React.FC = () => {
                     <div
                       key={task.id}
                       className={cn(
-                        "absolute w-96 h-80 transition-all duration-700 ease-spring cursor-pointer",
+                        "absolute w-96 h-80 transition-all ease-spring",
                         !isVisible && "opacity-0 pointer-events-none",
                       )}
                       style={{
@@ -220,13 +221,7 @@ const Tasks: React.FC = () => {
                               ? "purple"
                               : "default"
                         }
-                        className={cn(
-                          "h-full select-none transition-all duration-500 ease-spring",
-                          "hover:shadow-glow hover:scale-105 active:scale-95",
-                          task.completed && "opacity-75",
-                          task.id === selectedId &&
-                            "ring-2 ring-primary/50 shadow-glow",
-                        )}
+                        className="task-card h-full"
                       >
                         <div className="flex flex-col h-full justify-between">
                           <div className="space-y-3">
