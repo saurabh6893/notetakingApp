@@ -48,9 +48,11 @@ export function GlassCard({
       style={style}
       onClick={onClick}
     >
+      {/* Content container */}
       <div className="relative z-10 p-6 h-full">{children}</div>
 
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none" />
+      {/* Anti-aliased glass border overlay */}
+      <div className="glass-card-border pointer-events-none absolute inset-0 rounded-2xl" />
     </div>
   );
 }

@@ -1,14 +1,29 @@
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-  border-radius: 1rem;
-  border-left: 4px solid;
+  position: relative; /* needed for border overlay */
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7); /* semi-transparent white background */
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transform: translateZ(0); /* ensures GPU acceleration */
+  backface-visibility: hidden; /* improves border smoothness */
   padding: 1rem;
+  border-left: 4px solid; /* existing strong left border */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
+
+.glass-card-border {
+  border: 1.2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 4px rgba(255, 255, 255, 0.15);
+  position: absolute;
+  inset: 0;
+  border-radius: 16px; /* matches rounded-2xl */
+  z-index: 2;
+  pointer-events: none; /* ensures clicks pass through */
+}
+
 .glass-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);

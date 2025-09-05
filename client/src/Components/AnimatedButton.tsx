@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../lib/utils";
+
+import { useAdvancedGSAP } from "../hooks/useAdvancedGSAP";
 
 const animatedButtonVariants = cva(
   "relative overflow-hidden transition-all duration-300 ease-spring active:scale-95",
@@ -51,16 +52,22 @@ export function AnimatedButton({
   children,
   ...props
 }: AnimatedButtonProps) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const { animateButtonHover } = useAdvancedGSAP();
+
   return (
     <button
-      className={cn(animatedButtonVariants({ variant, size, glow, className }))}
+      ref={btnRef}
+      className={animatedButtonVariants({ variant, size, glow, className })}
+      onMouseEnter={() => {
+        if (btnRef.current) animateButtonHover(btnRef.current, true);
+      }}
+      onMouseLeave={() => {
+        if (btnRef.current) animateButtonHover(btnRef.current, false);
+      }}
       {...props}
     >
-      <span className="relative z-10 flex items-center justify-center gap-2">
-        {children}
-      </span>
-      {/* Ripple effect overlay */}
-      <div className="absolute inset-0 -top-2 -bottom-2 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+      {children}
     </button>
   );
 }
