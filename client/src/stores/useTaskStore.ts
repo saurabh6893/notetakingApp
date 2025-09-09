@@ -22,10 +22,6 @@ const getAuthHeaders = () => {
   };
 };
 
-const res = await fetch(`${API_BASE}/api/tasks`, {
-  headers: getAuthHeaders(),
-});
-
 export const useTaskStore = create<TaskState>((set) => ({
   tasks: [],
   loading: false,
@@ -56,7 +52,7 @@ export const useTaskStore = create<TaskState>((set) => ({
       const res = await fetch(`${API_BASE}/api/tasks`, {
         method: "POST",
         body: JSON.stringify({ text }),
-        headers: getAuthHeaders(), // ✅ ADDED AUTH
+        headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error("Add task failed");
       const newTask: Task = await res.json();

@@ -1,19 +1,18 @@
 import { useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
-
+type GSAPTimeline = ReturnType<typeof gsap.timeline>;
 export const useAdvancedGSAP = () => {
   const timelineRef = useRef<GSAPTimeline | null>(null);
 
-  // Cleanup timeline on unmount
   useEffect(() => {
+    const tl = timelineRef.current;
     return () => {
-      if (timelineRef.current) {
-        timelineRef.current.kill();
+      if (tl) {
+        tl.kill();
       }
     };
   }, []);
 
-  // Existing animateButtonHover function...
   const animateButtonHover = useCallback(
     (element: HTMLElement, isHover: boolean) => {
       if (isHover) {
@@ -68,6 +67,6 @@ export const useAdvancedGSAP = () => {
   return {
     timelineRef,
     animateButtonHover,
-    animateTasksStagger, // Export the new function
+    animateTasksStagger,
   };
 };

@@ -1,23 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import TaskInput from "../Components/TaskInput";
 import gsap from "gsap";
-
 import AnimatedButton from "../Components/AnimatedButton";
 import { GlassCard } from "../Components/GlassCard";
 import { cn } from "../lib/utils";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Layers3,
-  Calendar,
-  Check,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Layers3, Calendar, Check } from "lucide-react";
 import { format } from "date-fns";
 import { useAdvancedGSAP } from "../hooks/useAdvancedGSAP";
 import { useTaskStore } from "../stores/useTaskStore";
-
+type GSAPTimeline = ReturnType<typeof gsap.timeline>;
 const Tasks: React.FC = () => {
   const tasks = useTaskStore((state) => state.tasks);
   const deleteTask = useTaskStore((state) => state.removeTask);
@@ -29,14 +20,13 @@ const Tasks: React.FC = () => {
   const [editText, setEditText] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const stackRef = useRef<HTMLDivElement>(null);
   const topCardRef = useRef<HTMLDivElement>(null);
   const bottomCardRef = useRef<HTMLDivElement>(null);
-  const gsapTimelineRef = useRef<any>(null);
+  const gsapTimelineRef = useRef<GSAPTimeline | null>(null);
   const wheelLock = useRef(false);
   const { animateTasksStagger } = useAdvancedGSAP();
-  // Wheel navigation with lock (your existing smooth scrolling)
+  // Wheel navigation with lock ( existing smooth scrolling)
 
   useEffect(() => {
     fetchTasks();
