@@ -1,15 +1,17 @@
 // client/src/pages/Login.tsx
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+
 import { API_BASE } from "../config";
 import AnimatedButton from "../Components/AnimatedButton";
+import { useAuthStore } from "../stores/useAuthStore";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { setToken } = useContext(AuthContext);
+  const setToken = useAuthStore((s) => s.setToken);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -39,7 +39,7 @@ const Tasks: React.FC = () => {
   // Wheel navigation with lock (your existing smooth scrolling)
 
   useEffect(() => {
-    fetchTasks(); // Load tasks when component mounts
+    fetchTasks();
   }, [fetchTasks]);
   // NEW: Stagger task card entrance on tasks change
   useEffect(() => {
