@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import TaskInput from "../Components/TaskInput";
 import gsap from "gsap";
-import { useTasks } from "../context/useTasks";
+
 import AnimatedButton from "../Components/AnimatedButton";
 import { GlassCard } from "../Components/GlassCard";
 import { cn } from "../lib/utils";
@@ -15,11 +15,15 @@ import {
   Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
-import styles from "./Tasks.module.css";
 import { useAdvancedGSAP } from "../hooks/useAdvancedGSAP";
+import { useTaskStore } from "../stores/useTaskStore";
 
 const Tasks: React.FC = () => {
-  const { tasks, deleteTask, editTask, toggleComplete } = useTasks();
+  const tasks = useTaskStore((state) => state.tasks);
+  const deleteTask = useTaskStore((state) => state.removeTask);
+  const editTask = useTaskStore((state) => state.updateTask);
+  const toggleComplete = useTaskStore((state) => state.toggleComplete);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -70,7 +74,7 @@ const Tasks: React.FC = () => {
         setCurrentIndex((prev) => (prev - 1 + tasks.length) % tasks.length);
       } else if (e.key === "Enter") {
         e.preventDefault();
-        setSelectedId(tasks[currentIndex]?.id ?? null);
+        setSelectedId(tasks[currentIndex]?._id ?? null);
       } else if (e.key === "Escape") {
         e.preventDefault();
         setSelectedId(null);
@@ -142,7 +146,7 @@ const Tasks: React.FC = () => {
     }
   };
 
-  const selectedTask = tasks.find((t) => t.id === selectedId);
+  const selectedTask = tasks.find((t) => t._id === selectedId);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -194,7 +198,7 @@ const Tasks: React.FC = () => {
 
                   return (
                     <div
-                      key={task.id}
+                      key={task._id}
                       className={cn(
                         "absolute w-96 h-80 transition-all ease-spring",
                         !isVisible && "opacity-0 pointer-events-none",
@@ -210,14 +214,14 @@ const Tasks: React.FC = () => {
                         zIndex: 100 - adjustedIndex,
                         transformStyle: "preserve-3d",
                       }}
-                      onClick={() => setSelectedId(task.id)}
+                      onClick={() => setSelectedId(task._id)}
                     >
                       {/* Beautiful task card with Lovable styling */}
                       <GlassCard
                         variant={
                           task.completed
                             ? "blue"
-                            : task.id === selectedId
+                            : task._id === selectedId
                               ? "purple"
                               : "default"
                         }
@@ -396,7 +400,7 @@ const Tasks: React.FC = () => {
                         <div className="flex flex-wrap gap-3 pt-4 border-t border-white/10">
                           <AnimatedButton
                             variant="glass"
-                            onClick={() => toggleComplete(selectedTask.id)}
+                            onClick={() => toggleComplete(selectedTask._id)}
                             className={cn(
                               "transition-colors",
                               selectedTask.completed
@@ -413,7 +417,7 @@ const Tasks: React.FC = () => {
                             variant="destructive"
                             onClick={() => {
                               if (confirm("Delete this task?")) {
-                                deleteTask(selectedTask.id);
+                                deleteTask(selectedTask._id);
                                 setSelectedId(null);
                               }
                             }}
