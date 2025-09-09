@@ -23,6 +23,7 @@ const Tasks: React.FC = () => {
   const deleteTask = useTaskStore((state) => state.removeTask);
   const editTask = useTaskStore((state) => state.updateTask);
   const toggleComplete = useTaskStore((state) => state.toggleComplete);
+  const fetchTasks = useTaskStore((state) => state.fetchTasks);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
@@ -37,6 +38,9 @@ const Tasks: React.FC = () => {
   const { animateTasksStagger } = useAdvancedGSAP();
   // Wheel navigation with lock (your existing smooth scrolling)
 
+  useEffect(() => {
+    fetchTasks(); // Load tasks when component mounts
+  }, [fetchTasks]);
   // NEW: Stagger task card entrance on tasks change
   useEffect(() => {
     if (tasks.length > 0) {

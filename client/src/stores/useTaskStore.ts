@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Task } from "../types";
+import { API_BASE } from "../config";
 
 interface TaskState {
   tasks: Task[];
@@ -13,20 +14,37 @@ interface TaskState {
   error: string | null;
 }
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
+const res = await fetch(`${API_BASE}/api/tasks`, {
+  headers: getAuthHeaders(),
+});
+
 export const useTaskStore = create<TaskState>((set) => ({
   tasks: [],
   loading: false,
   error: null,
-
   setTasks: (tasks) => set({ tasks }),
 
   fetchTasks: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch("/api/tasks");
-      if (!res.ok) throw new Error("Failed to fetch tasks");
-      const data: Task[] = await res.json();
-      set({ tasks: data, loading: false });
+      const res = await fetch(`${API_BASE}/api/tasks`, {
+        headers: getAuthHeaders(),
+      });
+      const text = await res.text();
+      try {
+        const data: Task[] = JSON.parse(text);
+        set({ tasks: data, loading: false });
+      } catch {
+        set({ error: text, loading: false });
+      }
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
@@ -35,10 +53,10 @@ export const useTaskStore = create<TaskState>((set) => ({
   addTask: async (text) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch("/api/tasks", {
+      const res = await fetch(`${API_BASE}/api/tasks`, {
         method: "POST",
         body: JSON.stringify({ text }),
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
       if (!res.ok) throw new Error("Add task failed");
       const newTask: Task = await res.json();
@@ -51,10 +69,10 @@ export const useTaskStore = create<TaskState>((set) => ({
   updateTask: async (id, text) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: "PUT",
         body: JSON.stringify({ text }),
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
       if (!res.ok) throw new Error("Update task failed");
       const updatedTask: Task = await res.json();
@@ -70,8 +88,9 @@ export const useTaskStore = create<TaskState>((set) => ({
   toggleComplete: async (id) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/tasks/${id}/complete`, {
+      const res = await fetch(`${API_BASE}/api/tasks/${id}/complete`, {
         method: "PATCH",
+        headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
       if (!res.ok) throw new Error("Toggle complete failed");
       const updatedTask: Task = await res.json();
@@ -87,8 +106,9 @@ export const useTaskStore = create<TaskState>((set) => ({
   removeTask: async (id) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: "DELETE",
+        headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
       if (!res.ok) throw new Error("Delete task failed");
       set((state) => ({

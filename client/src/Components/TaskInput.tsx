@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useTasks } from "../context/useTasks";
+
 import AnimatedButton from "./AnimatedButton";
+import { useTaskStore } from "../stores/useTaskStore";
 
 export default function TaskInput() {
-  const { addTask } = useTasks();
   const [text, setText] = useState("");
-
+  const addTask = useTaskStore((state) => state.addTask);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
