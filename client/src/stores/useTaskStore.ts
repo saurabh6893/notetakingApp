@@ -34,15 +34,26 @@ export const useTaskStore = create<TaskState>((set) => ({
       const res = await fetch(`${API_BASE}/api/tasks`, {
         headers: getAuthHeaders(),
       });
+
+      if (res.status === 401 || res.status === 403) {
+        set({ tasks: [], error: "Session expired", loading: false });
+        return;
+      }
+
+      if (!res.ok) {
+        set({ tasks: [], error: `Error: ${res.status}`, loading: false });
+        return;
+      }
+
       const text = await res.text();
       try {
         const data: Task[] = JSON.parse(text);
-        set({ tasks: data, loading: false });
+        set({ tasks: Array.isArray(data) ? data : [], loading: false });
       } catch {
-        set({ error: text, loading: false });
+        set({ tasks: [], error: text, loading: false });
       }
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ tasks: [], error: (error as Error).message, loading: false });
     }
   },
 
