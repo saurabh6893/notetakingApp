@@ -1,3 +1,5 @@
+---
+
 # 🚀 MERN Task Manager
 
 A full-stack task management application built with modern web technologies, featuring smooth animations, user authentication, and real-time task operations.
@@ -217,11 +219,11 @@ POST /api/auth/login      # User login
 ### Tasks (Protected Routes)
 
 ```
-GET    /api/tasks         # Fetch user's tasks
-POST   /api/tasks         # Create new task
-PUT    /api/tasks/:id     # Update task text
-PATCH  /api/tasks/:id/complete  # Toggle completion status
-DELETE /api/tasks/:id     # Delete task
+GET    /api/tasks                  # Fetch user's tasks
+POST   /api/tasks                  # Create new task
+PUT    /api/tasks/:id              # Update task text
+PATCH  /api/tasks/:id/complete     # Toggle completion status
+DELETE /api/tasks/:id              # Delete task
 ```
 
 ## 🎯 Key Features Explained
@@ -308,5 +310,3 @@ This project is licensed under the ISC License.
 **Saurabh** - [GitHub](https://github.com/saurabh6893)
 
 ---
-
-Built with ❤️ using the MERN stack + TypeScript + GSAP
