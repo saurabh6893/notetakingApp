@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { Task } from "../types";
 import { API_BASE } from "../config";
+import { useAuthStore } from "./useAuthStore";
 
 interface TaskState {
   tasks: Task[];
@@ -15,7 +16,7 @@ interface TaskState {
 }
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = useAuthStore.getState().token;
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
