@@ -8,9 +8,13 @@ import { ArrowLeft, ArrowRight, Layers3, Calendar, Check } from "lucide-react";
 import { format } from "date-fns";
 import { useAdvancedGSAP } from "../hooks/useAdvancedGSAP";
 import { useTaskStore } from "../stores/useTaskStore";
+import Skeleton from "../Components/Skeleton";
+
 type GSAPTimeline = ReturnType<typeof gsap.timeline>;
+
 const Tasks: React.FC = () => {
   const tasks = useTaskStore((state) => state.tasks);
+  const loading = useTaskStore((state) => state.loading);
   const deleteTask = useTaskStore((state) => state.removeTask);
   const editTask = useTaskStore((state) => state.updateTask);
   const toggleComplete = useTaskStore((state) => state.toggleComplete);
@@ -26,12 +30,11 @@ const Tasks: React.FC = () => {
   const gsapTimelineRef = useRef<GSAPTimeline | null>(null);
   const wheelLock = useRef(false);
   const { animateTasksStagger } = useAdvancedGSAP();
-  // Wheel navigation with lock ( existing smooth scrolling)
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
-  // NEW: Stagger task card entrance on tasks change
+
   useEffect(() => {
     if (tasks.length > 0) {
       animateTasksStagger(".task-card");
@@ -87,9 +90,9 @@ const Tasks: React.FC = () => {
     if (selectedId) {
       if (!topCard || !bottomCard) return;
 
-      // Set initial display and create new timeline
+      // Set initial display and create new GSAP timeline
       gsap.set([topCard, bottomCard], { display: "block" });
-      gsapTimelineRef.current = gsap.timeline(); // Create GSAP timeline, not the function
+      gsapTimelineRef.current = gsap.timeline();
 
       gsapTimelineRef.current
         .fromTo(
@@ -106,7 +109,7 @@ const Tasks: React.FC = () => {
     } else {
       if (!topCard || !bottomCard) return;
 
-      gsapTimelineRef.current = gsap.timeline(); // Create GSAP timeline, not the function
+      gsapTimelineRef.current = gsap.timeline();
       gsapTimelineRef.current
         .to(topCard, {
           y: "-120%",
@@ -164,7 +167,32 @@ const Tasks: React.FC = () => {
 
       {/* Main content */}
       <main className="relative z-10 container mx-auto px-6 py-8">
-        {tasks.length === 0 ? (
+        {loading ? (
+          <div className="relative h-[500px] [perspective:1000px]">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-96 h-80 transition-all pointer-events-none"
+                style={{
+                  transform: `
+          translateX(${50 + i * 100}px)
+          translateY(${i * 20}px)
+          translateZ(${i * -200}px)
+          rotateX(${i * 145}deg)
+          scale(${1 - i * 0.1})
+        `,
+                  zIndex: 100 - i,
+                  transformStyle: "preserve-3d",
+                }}
+              >
+                <GlassCard className="task-card h-full flex flex-col justify-center">
+                  <Skeleton className="h-7 w-2/3 mx-auto mb-2" />
+                  <Skeleton className="h-5 w-1/2 mx-auto" />
+                </GlassCard>
+              </div>
+            ))}
+          </div>
+        ) : tasks.length === 0 ? (
           <div className="text-center py-20">
             <GlassCard className="task-card max-w-md mx-auto">
               <div className="text-center">
