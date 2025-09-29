@@ -2,14 +2,22 @@ import React, { useState } from "react";
 
 import AnimatedButton from "./AnimatedButton";
 import { useTaskStore } from "../stores/useTaskStore";
+import { CreateTaskSchema } from "../schemas/task.schema";
 
 export default function TaskInput() {
   const [text, setText] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
   const addTask = useTaskStore((state) => state.addTask);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
-    await addTask(text);
+    const result = CreateTaskSchema.safeParse({ text });
+    if (!result.success) {
+      setErrors(result.error.issues.map((i) => i.message));
+      return;
+    }
+    setErrors([]);
+    await addTask(result.data.text);
     setText("");
   };
 
@@ -28,6 +36,11 @@ export default function TaskInput() {
       >
         Add
       </AnimatedButton>
+      {errors.map((err, i) => (
+        <p key={i} className="text-red-600 text-sm">
+          {err}
+        </p>
+      ))}
     </form>
   );
 }

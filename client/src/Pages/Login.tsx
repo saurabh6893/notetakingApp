@@ -5,31 +5,35 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config";
 import AnimatedButton from "../Components/AnimatedButton";
 import { useAuthStore } from "../stores/useAuthStore";
+import { LoginSchema } from "../schemas/auth.schema";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
   const setToken = useAuthStore((s) => s.setToken);
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const result = LoginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setErrors(result.error.issues.map((i) => i.message));
+      return;
+    }
+    setErrors([]);
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(result.data),
       });
-
       if (!res.ok) throw new Error("Login failed");
-
       const data = await res.json();
       setToken(data.token);
       navigate("/tasks");
     } catch {
-      setError("Invalid credentials");
+      setErrors(["Invalid credentials"]);
     }
   };
 
@@ -61,7 +65,11 @@ export default function Login() {
         >
           Login
         </AnimatedButton>
-        {error && <p className="text-red-600 text-center">{error}</p>}
+        {errors.map((err, i) => (
+          <p key={i} className="text-red-600 text-sm">
+            {err}
+          </p>
+        ))}
       </form>
     </div>
   );

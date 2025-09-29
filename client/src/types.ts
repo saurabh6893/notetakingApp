@@ -1,14 +1,12 @@
-export interface Task {
-  _id: string;
-  text: string;
-  completed: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-export interface FrontendTask {
-  id: string;
-  text: string;
-  completed?: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  Task,
+  CreateTaskInput,
+  UpdateTaskInput,
+} from "./schemas/task.schema";
+
+export type {
+  User,
+  RegisterInput,
+  LoginInput,
+  AuthResponse,
+} from "./schemas/auth.schema";
