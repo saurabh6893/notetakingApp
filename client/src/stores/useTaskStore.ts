@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Task } from "../types";
 import { API_BASE } from "../config";
 import { useAuthStore } from "./useAuthStore";
+import { CreateTaskSchema, UpdateTaskSchema } from "../schemas/task.schema";
 
 interface TaskState {
   tasks: Task[];
@@ -59,27 +60,48 @@ export const useTaskStore = create<TaskState>((set) => ({
   },
 
   addTask: async (text) => {
+    const validation = CreateTaskSchema.safeParse({ text });
+    if (!validation.success) {
+      set({
+        error:
+          validation.error.issues[0]?.message || "Unknown validation error",
+      });
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${API_BASE}/api/tasks`, {
         method: "POST",
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(validation.data),
         headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error("Add task failed");
       const newTask: Task = await res.json();
-      set((state) => ({ tasks: [...state.tasks, newTask], loading: false }));
+      set((state) => ({
+        tasks: [...state.tasks, newTask],
+        loading: false,
+      }));
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
   },
 
   updateTask: async (id, text) => {
+    const validation = UpdateTaskSchema.safeParse({ text });
+    if (!validation.success) {
+      set({
+        error:
+          validation.error.issues[0]?.message || "Unknown validation error",
+      });
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: "PUT",
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(validation.data),
         headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
       if (!res.ok) throw new Error("Update task failed");
