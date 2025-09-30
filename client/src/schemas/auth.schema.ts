@@ -31,7 +31,6 @@ export const LoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-// _id,name,email,cretedat ipdated at
 export const UserSchema = z.object({
   _id: z.string(),
   name: z.string(),
