@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import { TaskModel } from "../models/task";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { CreateTaskSchema, UpdateTaskSchema } from "../schemas/task.schema";
 
 const router = Router();
 
@@ -17,7 +19,7 @@ router.get("/", async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/", async (req: AuthRequest, res) => {
+router.post("/", validate(CreateTaskSchema), async (req: AuthRequest, res) => {
   try {
     const { text } = req.body;
     if (!text) {
@@ -47,29 +49,33 @@ router.delete("/:id", async (req: AuthRequest, res) => {
   }
 });
 
-router.put("/:id", async (req: AuthRequest, res) => {
-  try {
-    const { id } = req.params;
-    const { text } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: "Invalid task text" });
+router.put(
+  "/:id",
+  validate(UpdateTaskSchema),
+  async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { text } = req.body;
+      if (!text) {
+        return res.status(400).json({ error: "Invalid task text" });
+      }
+
+      const task = await TaskModel.findOneAndUpdate(
+        { _id: id, userId: req.userId },
+        { text },
+        { new: true },
+      );
+
+      if (!task) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete task" });
     }
-
-    const task = await TaskModel.findOneAndUpdate(
-      { _id: id, userId: req.userId },
-      { text },
-      { new: true },
-    );
-
-    if (!task) {
-      return res.status(404).json({ error: "Task not found" });
-    }
-
-    res.json(task);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete task" });
-  }
-});
+  },
+);
 
 router.patch("/:id/complete", async (req: AuthRequest, res) => {
   try {

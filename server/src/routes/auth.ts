@@ -1,11 +1,14 @@
 import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/user";
+import { validate } from "../middleware/validate";
+import { LoginSchema, RegisterSchema } from "../schemas/auth.schema";
 
 const router = Router();
 
 router.post(
   "/register",
+  validate(RegisterSchema),
   async (
     req: Request<{}, {}, { name: string; email: string; password: string }>,
     res,
@@ -54,6 +57,7 @@ router.post(
 
 router.post(
   "/login",
+  validate(LoginSchema),
   async (req: Request<{}, {}, { email: string; password: string }>, res) => {
     try {
       const { email, password } = req.body;
