@@ -5,7 +5,6 @@ import { validate } from "../middleware/validate";
 import { CreateTaskSchema, UpdateTaskSchema } from "../schemas/task.schema";
 
 const router = Router();
-
 router.use(authMiddleware);
 
 router.get("/", async (req: AuthRequest, res) => {
@@ -13,18 +12,16 @@ router.get("/", async (req: AuthRequest, res) => {
     const tasks = await TaskModel.find({ userId: req.userId }).sort({
       createdAt: -1,
     });
-    res.json(tasks);
+    return res.json(tasks);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
+    return res.status(500).json({ error: "Failed to fetch tasks" });
   }
 });
 
 router.post("/", validate(CreateTaskSchema), async (req: AuthRequest, res) => {
   try {
     const { text } = req.body;
-    if (!text) {
-      res.status(400).json({ error: "Task text is required" });
-    }
+
     const task = new TaskModel({ text, userId: req.userId });
     await task.save();
     res.status(201).json(task);
@@ -56,9 +53,6 @@ router.put(
     try {
       const { id } = req.params;
       const { text } = req.body;
-      if (!text) {
-        return res.status(400).json({ error: "Invalid task text" });
-      }
 
       const task = await TaskModel.findOneAndUpdate(
         { _id: id, userId: req.userId },
