@@ -7,7 +7,9 @@
     "serve": "nodemon --watch src --exec ts-node src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "lint": "echo 'No linter configured for server. Skipping.'"
+    
   },
   "keywords": [],
   "author": "",
