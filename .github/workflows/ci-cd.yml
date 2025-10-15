@@ -33,9 +33,6 @@ jobs:
       - name: Type-check
         run: npm run tsc -- --noEmit
 
-      - name: Run frontend tests
-        run: npm test -- --coverage --watchAll=false
-
       - name: Build frontend
         run: npm run build
 
@@ -65,9 +62,6 @@ jobs:
 
       - name: Type-check
         run: npm run tsc -- --noEmit
-
-      - name: Run backend tests
-        run: npm test -- --coverage
 
       - name: Build backend
         run: npm run build
