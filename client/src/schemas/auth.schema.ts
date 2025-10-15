@@ -32,11 +32,9 @@ export const LoginSchema = z.object({
 });
 
 export const UserSchema = z.object({
-  _id: z.string(),
+  id: z.string(),
   name: z.string(),
   email: z.string().email(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
 });
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;

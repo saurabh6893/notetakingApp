@@ -33,7 +33,7 @@ export const useTaskStore = create<TaskState>((set) => ({
   fetchTasks: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_BASE}/api/tasks`, {
+      const res = await fetch(`${API_BASE}/tasks`, {
         headers: getAuthHeaders(),
       });
 
@@ -71,7 +71,7 @@ export const useTaskStore = create<TaskState>((set) => ({
 
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_BASE}/api/tasks`, {
+      const res = await fetch(`${API_BASE}/tasks`, {
         method: "POST",
         body: JSON.stringify(validation.data),
         headers: getAuthHeaders(),
@@ -99,7 +99,7 @@ export const useTaskStore = create<TaskState>((set) => ({
 
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: "PUT",
         body: JSON.stringify(validation.data),
         headers: getAuthHeaders(), // ✅ ADDED AUTH
@@ -118,7 +118,7 @@ export const useTaskStore = create<TaskState>((set) => ({
   toggleComplete: async (id) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/${id}/complete`, {
+      const res = await fetch(`${API_BASE}/tasks/${id}/complete`, {
         method: "PATCH",
         headers: getAuthHeaders(), // ✅ ADDED AUTH
       });
@@ -136,7 +136,7 @@ export const useTaskStore = create<TaskState>((set) => ({
   removeTask: async (id) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_BASE}/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(), // ✅ ADDED AUTH
       });

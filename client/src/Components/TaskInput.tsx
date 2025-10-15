@@ -2,45 +2,44 @@ import React, { useState } from "react";
 
 import AnimatedButton from "./AnimatedButton";
 import { useTaskStore } from "../stores/useTaskStore";
-import { CreateTaskSchema } from "../schemas/task.schema";
+import { CreateTaskSchema, type CreateTaskInput } from "../schemas/task.schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function TaskInput() {
-  const [text, setText] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
-  const addTask = useTaskStore((state) => state.addTask);
+  const addTask = useTaskStore((s) => s.addTask);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreateTaskInput>({
+    resolver: zodResolver(CreateTaskSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = CreateTaskSchema.safeParse({ text });
-    if (!result.success) {
-      setErrors(result.error.issues.map((i) => i.message));
-      return;
-    }
-    setErrors([]);
-    await addTask(result.data.text);
-    setText("");
+  const onSubmit = async (data: CreateTaskInput) => {
+    await addTask(data.text);
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex space-x-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex space-x-2">
       <input
         className="border p-2 flex-grow"
         type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        {...register("text")}
         placeholder="New task..."
       />
       <AnimatedButton
+        disabled={isSubmitting}
         type="submit"
         className="px-14 bg-blue-500 text-white rounded"
       >
-        Add
+        {isSubmitting ? "Adding..." : "Add Task"}
       </AnimatedButton>
-      {errors.map((err, i) => (
-        <p key={i} className="text-red-600 text-sm">
-          {err}
-        </p>
-      ))}
+      {errors.text && (
+        <p className="text-red-500 text-sm">{errors.text.message}</p>
+      )}
     </form>
   );
 }
