@@ -21,11 +21,14 @@ const Tasks: React.FC = () => {
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingDescId, setEditingDescId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [editDesc, setEditDesc] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const stackRef = useRef<HTMLDivElement>(null);
   const topCardRef = useRef<HTMLDivElement>(null);
+  const descCardRef = useRef<HTMLDivElement>(null); // New ref for description card
   const bottomCardRef = useRef<HTMLDivElement>(null);
   const gsapTimelineRef = useRef<GSAPTimeline | null>(null);
   const wheelLock = useRef(false);
@@ -85,13 +88,13 @@ const Tasks: React.FC = () => {
     if (gsapTimelineRef.current) gsapTimelineRef.current.kill();
 
     const topCard = topCardRef.current;
+    const descCard = descCardRef.current;
     const bottomCard = bottomCardRef.current;
 
     if (selectedId) {
-      if (!topCard || !bottomCard) return;
+      if (!topCard || !descCard || !bottomCard) return;
 
-      // Set initial display and create new GSAP timeline
-      gsap.set([topCard, bottomCard], { display: "block" });
+      gsap.set([topCard, descCard, bottomCard], { display: "block" });
       gsapTimelineRef.current = gsap.timeline();
 
       gsapTimelineRef.current
@@ -101,13 +104,19 @@ const Tasks: React.FC = () => {
           { y: "0%", opacity: 1, duration: 0.7, ease: "power2.out" },
         )
         .fromTo(
+          descCard,
+          { y: "60%", opacity: 0 },
+          { y: "0%", opacity: 1, duration: 0.7, ease: "power2.out" },
+          "-=0.5",
+        )
+        .fromTo(
           bottomCard,
           { y: "120%", opacity: 0 },
           { y: "0%", opacity: 1, duration: 0.7, ease: "power2.out" },
           "-=0.5",
         );
     } else {
-      if (!topCard || !bottomCard) return;
+      if (!topCard || !descCard || !bottomCard) return;
 
       gsapTimelineRef.current = gsap.timeline();
       gsapTimelineRef.current
@@ -118,6 +127,16 @@ const Tasks: React.FC = () => {
           ease: "power2.in",
         })
         .to(
+          descCard,
+          {
+            y: "60%",
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.in",
+          },
+          "-=0.5",
+        )
+        .to(
           bottomCard,
           {
             y: "120%",
@@ -125,9 +144,9 @@ const Tasks: React.FC = () => {
             duration: 0.6,
             ease: "power2.in",
           },
-          "-=0.4",
+          "-=0.5",
         )
-        .set([topCard, bottomCard], { display: "none" });
+        .set([topCard, descCard, bottomCard], { display: "none" });
     }
 
     return () => {
@@ -137,9 +156,14 @@ const Tasks: React.FC = () => {
 
   const saveEdit = async () => {
     if (editingId && editText.trim()) {
-      await editTask(editingId, editText.trim());
+      const currTask = tasks.find((t) => t._id === editingId);
+      await editTask(editingId, {
+        text: editText.trim(),
+        description: currTask?.description || "",
+      });
       setEditingId(null);
       setEditText("");
+      setSelectedId(null);
     }
   };
 
@@ -147,25 +171,6 @@ const Tasks: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Beautiful background effects from Lovable */}
-      <div className="absolute inset-0 bg-gradient-aurora opacity-5 animate-pulse" />
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-primary rounded-full blur-3xl opacity-10 animate-float" />
-      <div
-        className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-gradient-sunset rounded-full blur-3xl opacity-10 animate-float"
-        style={{ animationDelay: "2s" }}
-      />
-
-      {/* Header */}
-      <header className="relative z-20 pt-8 pb-6">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4"></div>
-          </div>
-          <TaskInput />
-        </div>
-      </header>
-
-      {/* Main content */}
       <main className="relative z-10 container mx-auto px-6 py-8">
         {loading ? (
           <div className="relative h-[500px] [perspective:1000px]">
@@ -175,12 +180,12 @@ const Tasks: React.FC = () => {
                 className="absolute w-96 h-80 transition-all pointer-events-none"
                 style={{
                   transform: `
-          translateX(${50 + i * 100}px)
-          translateY(${i * 20}px)
-          translateZ(${i * -200}px)
-          rotateX(${i * 145}deg)
-          scale(${1 - i * 0.1})
-        `,
+                    translateX(${50 + i * 100}px)
+                    translateY(${i * 20}px)
+                    translateZ(${i * -200}px)
+                    rotateX(${i * 145}deg)
+                    scale(${1 - i * 0.1})
+                  `,
                   zIndex: 100 - i,
                   transformStyle: "preserve-3d",
                 }}
@@ -222,7 +227,7 @@ const Tasks: React.FC = () => {
                     <div
                       key={task._id}
                       className={cn(
-                        "absolute w-96 h-80 transition-all ease-spring",
+                        "absolute w-96 h-80 transition-all ease spring",
                         !isVisible && "opacity-0 pointer-events-none",
                       )}
                       style={{
@@ -238,7 +243,6 @@ const Tasks: React.FC = () => {
                       }}
                       onClick={() => setSelectedId(task._id)}
                     >
-                      {/* Beautiful task card with Lovable styling */}
                       <GlassCard
                         variant={
                           task.completed
@@ -260,7 +264,6 @@ const Tasks: React.FC = () => {
                               >
                                 {task.text}
                               </h3>
-
                               <div
                                 className={cn(
                                   "ml-3 p-2 rounded-full transition-all duration-300",
@@ -273,7 +276,6 @@ const Tasks: React.FC = () => {
                                 <Check className="h-4 w-4" />
                               </div>
                             </div>
-
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Calendar className="h-3 w-3" />
                               <span>
@@ -284,6 +286,16 @@ const Tasks: React.FC = () => {
                                 )}
                               </span>
                             </div>
+                            {task.description && (
+                              <h6
+                                className={cn(
+                                  "text-xl font-extralight mt-4 line-clamp-2 flex-1 text-gray-500",
+                                  task.completed && "line-through opacity-60",
+                                )}
+                              >
+                                {task.description}
+                              </h6>
+                            )}
                           </div>
                         </div>
                       </GlassCard>
@@ -319,7 +331,7 @@ const Tasks: React.FC = () => {
               </div>
             </div>
 
-            {/* Right side - GSAP animated detail cards or static details */}
+            {/* Right side - GSAP animated detail cards */}
             <div className="relative">
               {selectedTask && (
                 <div className="space-y-6 animate-scale-in">
@@ -381,6 +393,81 @@ const Tasks: React.FC = () => {
                           >
                             Edit Title
                           </AnimatedButton>
+                        )}
+                      </div>
+                    </GlassCard>
+                  </div>
+
+                  {/* Animated description card */}
+                  <div
+                    ref={descCardRef}
+                    style={{
+                      position: "relative",
+                      opacity: 0,
+                      display: "none",
+                    }}
+                  >
+                    <GlassCard
+                      variant="purple"
+                      className="animate-slide-down mt-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        {editingDescId === selectedId ? (
+                          <>
+                            <textarea
+                              className="bg-transparent border-b-2 border-white/50 px-2 py-1 w-full resize-none"
+                              rows={3}
+                              value={editDesc}
+                              autoFocus
+                              minLength={20}
+                              maxLength={1000}
+                              onChange={(e) => setEditDesc(e.target.value)}
+                              placeholder="Task description..."
+                            />
+                            <div className="flex gap-2 ml-4">
+                              <AnimatedButton
+                                onClick={async () => {
+                                  if (editDesc.trim().length >= 20) {
+                                    await editTask(selectedId!, {
+                                      text: selectedTask.text,
+                                      description: editDesc.trim(),
+                                    });
+                                    setEditingDescId(null);
+                                    setEditDesc("");
+                                    setSelectedId(null);
+                                  }
+                                }}
+                                variant="glass"
+                              >
+                                Save
+                              </AnimatedButton>
+                              <AnimatedButton
+                                onClick={() => {
+                                  setEditingDescId(null);
+                                  setEditDesc("");
+                                }}
+                                variant="ghost"
+                              >
+                                Cancel
+                              </AnimatedButton>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <h6 className="text-xl font-extralight flex-1 text-gray-500 text-left whitespace-pre-line">
+                              {selectedTask.description || "No description"}
+                            </h6>
+                            <AnimatedButton
+                              onClick={() => {
+                                setEditingDescId(selectedId);
+                                setEditDesc(selectedTask.description || "");
+                              }}
+                              variant="glass"
+                              className="ml-4"
+                            >
+                              Edit Description
+                            </AnimatedButton>
+                          </>
                         )}
                       </div>
                     </GlassCard>

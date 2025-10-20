@@ -9,6 +9,12 @@ export const TaskSchema = z.object({
     .max(500, "Task title cannot exceed 500 characters")
     .trim()
     .refine((val) => val.length > 0, "Task cannot be empty"),
+  description: z
+    .string()
+    .min(20, "Description should be atleast 20 chars")
+    .max(1000, "Task title cannot exceed 1000 characters")
+    .trim()
+    .refine((val) => val.length > 0, "Task cannot be empty"),
   completed: z.boolean(),
   userId: z.string().min(1, "User ID is required"),
   createdAt: z.string(),
@@ -17,13 +23,17 @@ export const TaskSchema = z.object({
 
 export type Task = z.infer<typeof TaskSchema>;
 
-// for Input valdation schemas for diff operations
-
 export const CreateTaskSchema = z.object({
   text: z
     .string()
     .min(3, "Task must be at least 3 characters")
     .max(500, "Task too long")
+    .trim()
+    .refine((val) => val.length > 0, "Task cannot be empty"),
+  description: z
+    .string()
+    .min(20, "Description should be atleast 20 chars")
+    .max(1000, "Task title cannot exceed 1000 characters")
     .trim()
     .refine((val) => val.length > 0, "Task cannot be empty"),
 });
@@ -33,6 +43,12 @@ export const UpdateTaskSchema = z.object({
     .string()
     .min(3, "Task must be at least 3 characters")
     .max(500, "Task too long")
+    .trim()
+    .refine((val) => val.length > 0, "Task cannot be empty"),
+  description: z
+    .string()
+    .min(20, "Description should be atleast 20 chars")
+    .max(1000, "Task title cannot exceed 1000 characters")
     .trim()
     .refine((val) => val.length > 0, "Task cannot be empty"),
 });

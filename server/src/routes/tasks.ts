@@ -20,9 +20,8 @@ router.get("/", async (req: AuthRequest, res) => {
 
 router.post("/", validate(CreateTaskSchema), async (req: AuthRequest, res) => {
   try {
-    const { text } = req.body;
-
-    const task = new TaskModel({ text, userId: req.userId });
+    const { text, description } = req.body;
+    const task = new TaskModel({ text, description, userId: req.userId });
     await task.save();
     res.status(201).json(task);
   } catch (error) {
@@ -52,11 +51,10 @@ router.put(
   async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const { text } = req.body;
-
+      const { text, description } = req.body;
       const task = await TaskModel.findOneAndUpdate(
         { _id: id, userId: req.userId },
-        { text },
+        { text, description },
         { new: true },
       );
 

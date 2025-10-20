@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Task } from "../types";
+import type { CreateTaskInput, Task, UpdateTaskInput } from "../types";
 import { API_BASE } from "../config";
 import { useAuthStore } from "./useAuthStore";
 import { CreateTaskSchema, UpdateTaskSchema } from "../schemas/task.schema";
@@ -8,8 +8,8 @@ interface TaskState {
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
   fetchTasks: () => Promise<void>;
-  addTask: (text: string) => Promise<void>;
-  updateTask: (id: string, text: string) => Promise<void>;
+  addTask: (data: CreateTaskInput) => Promise<void>;
+  updateTask: (id: string, payload: UpdateTaskInput) => Promise<void>;
   toggleComplete: (id: string) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   loading: boolean;
@@ -28,6 +28,7 @@ export const useTaskStore = create<TaskState>((set) => ({
   tasks: [],
   loading: false,
   error: null,
+
   setTasks: (tasks) => set({ tasks }),
 
   fetchTasks: async () => {
@@ -47,25 +48,17 @@ export const useTaskStore = create<TaskState>((set) => ({
         return;
       }
 
-      const text = await res.text();
-      try {
-        const data: Task[] = JSON.parse(text);
-        set({ tasks: Array.isArray(data) ? data : [], loading: false });
-      } catch {
-        set({ tasks: [], error: text, loading: false });
-      }
+      const data: Task[] = await res.json();
+      set({ tasks: Array.isArray(data) ? data : [], loading: false });
     } catch (error) {
       set({ tasks: [], error: (error as Error).message, loading: false });
     }
   },
 
-  addTask: async (text) => {
-    const validation = CreateTaskSchema.safeParse({ text });
+  addTask: async (payload) => {
+    const validation = CreateTaskSchema.safeParse(payload);
     if (!validation.success) {
-      set({
-        error:
-          validation.error.issues[0]?.message || "Unknown validation error",
-      });
+      set({ error: validation.error.issues[0]?.message ?? "Invalid input" });
       return;
     }
 
@@ -76,7 +69,9 @@ export const useTaskStore = create<TaskState>((set) => ({
         body: JSON.stringify(validation.data),
         headers: getAuthHeaders(),
       });
+
       if (!res.ok) throw new Error("Add task failed");
+
       const newTask: Task = await res.json();
       set((state) => ({
         tasks: [...state.tasks, newTask],
@@ -87,8 +82,8 @@ export const useTaskStore = create<TaskState>((set) => ({
     }
   },
 
-  updateTask: async (id, text) => {
-    const validation = UpdateTaskSchema.safeParse({ text });
+  updateTask: async (id, payload: UpdateTaskInput) => {
+    const validation = UpdateTaskSchema.safeParse(payload);
     if (!validation.success) {
       set({
         error:
@@ -102,9 +97,11 @@ export const useTaskStore = create<TaskState>((set) => ({
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: "PUT",
         body: JSON.stringify(validation.data),
-        headers: getAuthHeaders(), // ✅ ADDED AUTH
+        headers: getAuthHeaders(),
       });
+
       if (!res.ok) throw new Error("Update task failed");
+
       const updatedTask: Task = await res.json();
       set((state) => ({
         tasks: state.tasks.map((t) => (t._id === id ? updatedTask : t)),
@@ -120,9 +117,11 @@ export const useTaskStore = create<TaskState>((set) => ({
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}/complete`, {
         method: "PATCH",
-        headers: getAuthHeaders(), // ✅ ADDED AUTH
+        headers: getAuthHeaders(),
       });
+
       if (!res.ok) throw new Error("Toggle complete failed");
+
       const updatedTask: Task = await res.json();
       set((state) => ({
         tasks: state.tasks.map((t) => (t._id === id ? updatedTask : t)),
@@ -138,9 +137,11 @@ export const useTaskStore = create<TaskState>((set) => ({
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(), // ✅ ADDED AUTH
+        headers: getAuthHeaders(),
       });
+
       if (!res.ok) throw new Error("Delete task failed");
+
       set((state) => ({
         tasks: state.tasks.filter((t) => t._id !== id),
         loading: false,
