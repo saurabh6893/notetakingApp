@@ -56,13 +56,29 @@ export const useTaskStore = create<TaskState>((set) => ({
   },
 
   addTask: async (payload) => {
+    // const snapshot = get().tasks;
+    const snapshot = useTaskStore.getState().tasks;
+
     const validation = CreateTaskSchema.safeParse(payload);
     if (!validation.success) {
       set({ error: validation.error.issues[0]?.message ?? "Invalid input" });
       return;
     }
 
-    set({ loading: true, error: null });
+    const tempTask: Task = {
+      ...validation.data,
+      _id: "temp-" + Date.now(),
+      completed: false,
+      userId: "optimistic-user",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    set((state) => ({
+      tasks: [...state.tasks, tempTask],
+      loading: true,
+      error: null,
+    }));
     try {
       const res = await fetch(`${API_BASE}/tasks`, {
         method: "POST",
@@ -74,15 +90,16 @@ export const useTaskStore = create<TaskState>((set) => ({
 
       const newTask: Task = await res.json();
       set((state) => ({
-        tasks: [...state.tasks, newTask],
+        tasks: state.tasks.map((t) => (t._id === tempTask._id ? newTask : t)),
         loading: false,
       }));
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ tasks: snapshot, error: (error as Error).message, loading: false });
     }
   },
 
   updateTask: async (id, payload: UpdateTaskInput) => {
+    const snapshot = useTaskStore.getState().tasks;
     const validation = UpdateTaskSchema.safeParse(payload);
     if (!validation.success) {
       set({
@@ -91,7 +108,11 @@ export const useTaskStore = create<TaskState>((set) => ({
       });
       return;
     }
-
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t._id === id ? { ...t, ...validation.data } : t,
+      ),
+    }));
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
@@ -108,7 +129,7 @@ export const useTaskStore = create<TaskState>((set) => ({
         loading: false,
       }));
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ tasks: snapshot, error: (error as Error).message, loading: false });
     }
   },
 
