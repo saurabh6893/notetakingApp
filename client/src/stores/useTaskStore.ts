@@ -113,7 +113,13 @@ export const useTaskStore = create<TaskState>((set) => ({
   },
 
   toggleComplete: async (id) => {
+    const snapshot = useTaskStore.getState().tasks;
     set({ loading: true, error: null });
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t._id === id ? { ...t, completed: !t.completed } : t,
+      ),
+    }));
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}/complete`, {
         method: "PATCH",
@@ -128,11 +134,12 @@ export const useTaskStore = create<TaskState>((set) => ({
         loading: false,
       }));
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ tasks: snapshot, error: (error as Error).message, loading: false });
     }
   },
 
   removeTask: async (id) => {
+    const snapshot = useTaskStore.getState().tasks;
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
@@ -147,7 +154,7 @@ export const useTaskStore = create<TaskState>((set) => ({
         loading: false,
       }));
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set({ tasks: snapshot, error: (error as Error).message, loading: false });
     }
   },
 }));
