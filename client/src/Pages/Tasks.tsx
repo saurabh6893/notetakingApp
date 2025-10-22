@@ -171,6 +171,21 @@ const Tasks: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-aurora opacity-5 animate-pulse" />
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-primary rounded-full blur-3xl opacity-10 animate-float" />
+      <div
+        className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-gradient-sunset rounded-full blur-3xl opacity-10 animate-float"
+        style={{ animationDelay: "2s" }}
+      />
+
+      <header className="relative z-20 pt-8 pb-6">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-4"></div>
+          </div>
+          <TaskInput />
+        </div>
+      </header>
       <main className="relative z-10 container mx-auto px-6 py-8">
         {loading ? (
           <div className="relative h-[500px] [perspective:1000px]">
@@ -506,7 +521,7 @@ const Tasks: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3 pt-4 border-t border-white/10">
+                        <div className="flex flex-wrap justify-between items-center gap-3 pt-4 border-t border-white/10">
                           <AnimatedButton
                             variant="glass"
                             onClick={() => toggleComplete(selectedTask._id)}
@@ -537,7 +552,6 @@ const Tasks: React.FC = () => {
                       </div>
                     </GlassCard>
                   </div>
-
                   <AnimatedButton
                     variant="ghost"
                     onClick={() => setSelectedId(null)}
