@@ -2,10 +2,11 @@ import { useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
 
 type GSAPTimeline = ReturnType<typeof gsap.timeline>;
+type GsapTween = ReturnType<typeof gsap.to>;
 
 export const useAdvancedGSAP = () => {
   const timelineRef = useRef<GSAPTimeline | null>(null);
-  const tasksTimelineRef = useRef<any>(null);
+  const tasksTimelineRef = useRef<GsapTween | null>(null);
 
   useEffect(() => {
     const tl = timelineRef.current;

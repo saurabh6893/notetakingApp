@@ -5,17 +5,17 @@ interface State {
 }
 
 class ErrorBoundary extends React.Component<
-  React.PropsWithChildren<{}>,
+  React.PropsWithChildren<unknown>,
   State
 > {
   state: State = { hasError: false };
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Caught error:", error, errorInfo);
+  componentDidCatch(): void {
+    console.error("Error caught in boundary");
   }
 
   render() {
