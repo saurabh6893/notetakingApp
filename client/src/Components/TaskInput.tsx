@@ -3,9 +3,19 @@ import { useTaskStore } from "../stores/useTaskStore";
 import { CreateTaskSchema, type CreateTaskInput } from "../schemas/task.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef, useState } from "react";
 
-export default function TaskInput() {
+export default function TaskInput({
+  onTaskAdded,
+}: {
+  onTaskAdded?: () => void;
+}) {
   const addTask = useTaskStore((s) => s.addTask);
+
+  const [showTextError, setShowTextError] = useState(false);
+  const [showDescError, setShowDescError] = useState(false);
+  const textTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const descTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     register,
@@ -16,10 +26,42 @@ export default function TaskInput() {
     resolver: zodResolver(CreateTaskSchema),
   });
 
+  useEffect(() => {
+    if (errors.text) {
+      setShowTextError(true);
+      if (textTimerRef.current) clearTimeout(textTimerRef.current);
+      textTimerRef.current = setTimeout(() => setShowTextError(false), 5000);
+    }
+    return () => {
+      if (textTimerRef.current) clearTimeout(textTimerRef.current);
+    };
+  }, [errors.text]);
+
+  useEffect(() => {
+    if (errors.description) {
+      setShowDescError(true);
+      if (descTimerRef.current) clearTimeout(descTimerRef.current);
+      descTimerRef.current = setTimeout(() => setShowDescError(false), 5000);
+    }
+    return () => {
+      if (descTimerRef.current) clearTimeout(descTimerRef.current);
+    };
+  }, [errors.description]);
+
   const onSubmit = async (data: CreateTaskInput) => {
     await addTask(data);
     reset();
+    onTaskAdded?.();
   };
+
+  function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setShowTextError(false);
+    return e.target.value;
+  }
+  function handleDescChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setShowDescError(false);
+    return e.target.value;
+  }
 
   return (
     <form
@@ -32,6 +74,10 @@ export default function TaskInput() {
           {...register("text")}
           type="text"
           placeholder="title text..."
+          onChange={(e) => {
+            register("text").onChange(e);
+            handleTextChange(e);
+          }}
           className="
           flex-1
           py-3
@@ -48,8 +94,8 @@ export default function TaskInput() {
           focus:shadow-md
           "
         />
-        {errors.text && (
-          <p className="text-red-500 text-sm">{errors.text.message}</p>
+        {errors.text && showTextError && (
+          <p className="text-red-500 text-xs mt-2">{errors.text.message}</p>
         )}
       </div>
       <div className="flex-[2] flex flex-col">
@@ -57,6 +103,10 @@ export default function TaskInput() {
           {...register("description")}
           placeholder="task description ......................."
           rows={1}
+          onChange={(e) => {
+            register("description").onChange(e);
+            handleDescChange(e);
+          }}
           className="
         flex-[2]
         py-3
@@ -74,8 +124,10 @@ export default function TaskInput() {
           focus:shadow-md
           "
         />
-        {errors.description && (
-          <p className="text-red-500 text-sm">{errors.description.message}</p>
+        {errors.description && showDescError && (
+          <p className="text-red-500 text-xs mt-2">
+            {errors.description.message}
+          </p>
         )}
       </div>
       <AnimatedButton

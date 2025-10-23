@@ -1,8 +1,11 @@
 import { useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
+
 type GSAPTimeline = ReturnType<typeof gsap.timeline>;
+
 export const useAdvancedGSAP = () => {
   const timelineRef = useRef<GSAPTimeline | null>(null);
+  const tasksTimelineRef = useRef<any>(null);
 
   useEffect(() => {
     const tl = timelineRef.current;
@@ -34,10 +37,12 @@ export const useAdvancedGSAP = () => {
     [],
   );
 
-  // NEW: Stagger animation for task cards
   const animateTasksStagger = useCallback(
     (selector: string, delay: number = 0) => {
-      return gsap.fromTo(
+      if (tasksTimelineRef.current) {
+        tasksTimelineRef.current.kill();
+      }
+      tasksTimelineRef.current = gsap.fromTo(
         selector,
         {
           y: 80,
@@ -53,13 +58,14 @@ export const useAdvancedGSAP = () => {
           duration: 0.8,
           delay,
           stagger: {
-            amount: 0.6, // Total time to stagger all cards
+            amount: 0.6,
             from: "start",
             ease: "power2.out",
           },
-          ease: "back.out(1.4)", // Springy entrance
+          ease: "back.out(1.4)",
         },
       );
+      return tasksTimelineRef.current;
     },
     [],
   );

@@ -40,10 +40,10 @@ const Tasks: React.FC = () => {
 
   useEffect(() => {
     if (tasks.length > 0) {
+      gsap.killTweensOf(".task-card");
       animateTasksStagger(".task-card");
     }
   }, [tasks, animateTasksStagger]);
-
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -61,7 +61,7 @@ const Tasks: React.FC = () => {
       stackEl.addEventListener("wheel", handleWheel, { passive: false });
       return () => stackEl.removeEventListener("wheel", handleWheel);
     }
-  }, [tasks.length]);
+  }, [tasks]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -161,6 +161,7 @@ const Tasks: React.FC = () => {
         text: editText.trim(),
         description: currTask?.description || "",
       });
+      await fetchTasks();
       setEditingId(null);
       setEditText("");
       setSelectedId(null);
@@ -183,7 +184,7 @@ const Tasks: React.FC = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4"></div>
           </div>
-          <TaskInput />
+          <TaskInput onTaskAdded={() => setSelectedId(null)} />
         </div>
       </header>
       <main className="relative z-10 container mx-auto px-6 py-8">
@@ -447,6 +448,7 @@ const Tasks: React.FC = () => {
                                       text: selectedTask.text,
                                       description: editDesc.trim(),
                                     });
+                                    await fetchTasks();
                                     setEditingDescId(null);
                                     setEditDesc("");
                                     setSelectedId(null);
