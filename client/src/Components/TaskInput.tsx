@@ -14,8 +14,8 @@ export default function TaskInput({
 
   const [showTextError, setShowTextError] = useState(false);
   const [showDescError, setShowDescError] = useState(false);
-  const textTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const descTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const textTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const descTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     register,
