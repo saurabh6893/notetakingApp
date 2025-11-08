@@ -9,7 +9,6 @@
     "build": "tsc",
     "tsc": "tsc",
     "lint": "echo 'No linter configured for server. Skipping.'"
-    
   },
   "keywords": [],
   "author": "",
@@ -18,8 +17,11 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
+    "csrf-sync": "^4.2.1",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
     "uuid": "^11.1.0",
