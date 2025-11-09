@@ -7,7 +7,7 @@ export const authLimiter = rateLimit({
   max: isProduction ? 5 : 100,
   message: {
     success: false,
-    message: "Too many login attempts. Please try again later.",
+    message: "Too many requests. Please slow down.",
     retryAfter: 15,
   },
   standardHeaders: true,
@@ -19,7 +19,7 @@ export const taskLimiter = rateLimit({
   max: isProduction ? 100 : 500,
   message: {
     success: false,
-    message: "Too many requests. Please slow down.",
+    message: "Too much work bro. Please slow down.",
     retryAfter: 15,
   },
   standardHeaders: true,
@@ -35,7 +35,7 @@ export const helmetConfig = {
       imgSrc: ["'self'", "data:", "https:"],
     },
   },
-  frameguard: { action: "deny" },
+  frameguard: { action: "deny" as const }, // add 'as const' here
   xssFilter: true,
   noSniff: true,
 };
