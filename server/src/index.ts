@@ -3,10 +3,16 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+
 import tasksRouter from "./routes/tasks";
 import authRouter from "./routes/auth";
 
 import { connectDB } from "./db";
+import { helmetConfig } from "./config/security";
+import { rateLimitAuth, rateLimitTask } from "./middleware/rateLimiter";
+import { attachCsrfToken, validateCsrfToken } from "./middleware/csrf";
 
 const app = express();
 
@@ -14,6 +20,9 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://saurabhsnotetakingapp.netlify.app",
 ];
+
+app.use(helmet(helmetConfig));
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -24,13 +33,16 @@ app.use(
       }
       return callback(null, true);
     },
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   }),
 );
+
+app.use(cookieParser());
+
 app.use(express.json());
-app.use("/api/auth", authRouter);
-app.use("/api/tasks", tasksRouter);
+app.use("/api/auth", rateLimitAuth, attachCsrfToken, authRouter);
+app.use("/api/tasks", rateLimitTask, validateCsrfToken, tasksRouter);
 
 app.get("/", (_req, res) => {
   res.send("Task Manager API is running with MongoDB!");
