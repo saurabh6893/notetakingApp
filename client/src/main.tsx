@@ -4,12 +4,15 @@ import App from "./App";
 import "./App.css";
 import ErrorBoundary from "./Components/ErrorBoundary";
 import { RateLimitAlert } from "./Components/RateLimitAlert";
-
+import { SWRConfig } from "swr";
+import { localStorageProvider } from "./lib/localStorageProvider";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <RateLimitAlert />
-      <App />
+      <SWRConfig value={{ provider: localStorageProvider }}>
+        <RateLimitAlert />
+        <App />
+      </SWRConfig>
     </ErrorBoundary>
   </StrictMode>,
 );
