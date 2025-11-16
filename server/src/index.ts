@@ -42,7 +42,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use("/api/auth", rateLimitAuth, attachCsrfToken, authRouter);
-app.use("/api/tasks", rateLimitTask, validateCsrfToken, tasksRouter);
+app.use("/api/tasks", rateLimitTask, tasksRouter);
 
 app.get("/", (_req, res) => {
   res.send("Task Manager API is running with MongoDB!");
