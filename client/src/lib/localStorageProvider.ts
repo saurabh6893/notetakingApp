@@ -1,10 +1,10 @@
-export const localStorageProvider = () => {
-  // Restore from localStorage (key must be string)
-  const map = new Map<string, any>(
+import type { Cache } from "swr";
+
+export const localStorageProvider = (): Cache<unknown> => {
+  const map = new Map<string, unknown>(
     JSON.parse(localStorage.getItem("app-cache") || "[]"),
   );
 
-  // Persist back to localStorage on window unload
   window.addEventListener("beforeunload", () => {
     localStorage.setItem(
       "app-cache",
@@ -12,5 +12,5 @@ export const localStorageProvider = () => {
     );
   });
 
-  return map;
+  return map as unknown as Cache<unknown>;
 };
